@@ -22,7 +22,6 @@ class html_table_parser_tests(unittest.TestCase):
     test_url = 'https://www.der-enno.de/#meldungen'
 
     extracted_table = ''
-    extracted_table_header = ''
     extracted_table_body = ''
 
     def test_table_extraction(self):
@@ -33,11 +32,14 @@ class html_table_parser_tests(unittest.TestCase):
 
     def test_table_header_extraction(self):
         parser = enno_train_delay.extract_train_delay_information()
-        self.extracted_table_header = parser.parse_train_delay_table_header(
+        extracted_table_header = parser.parse_train_delay_table_header(
             self.extracted_table)
 
+        # Extracted table head should not be None
+        self.assertIsNotNone(extracted_table_header)
+
         # Extracted table head should contain the following columns
-        self.assertListEqual(self.extracted_table_header, [
+        self.assertListEqual(extracted_table_header, [
                              'Datum', 'Uhrzeit', 'Meldung'])
 
     def test_table_body_row_extraction(self):

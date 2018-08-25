@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
 import re
+from enno_train_delay import enno_train_delay
+
 html_string = """<table class="troubletable" id="troubleTable">
 				<thead>
 					<tr>
@@ -24,7 +26,7 @@ html_string = """<table class="troubletable" id="troubleTable">
 soup = BeautifulSoup(html_string, 'html.parser')
 # Extract the Table by ID
 table = soup.find(id='troubleTable')
-print(table)
+# print(table)
 
 # Find the table header and extract it
 table_header = soup.find('thead')
@@ -45,3 +47,7 @@ Reg Expressions
 '''
 table_body_reg_expressions = [
     '(\d{1,2}.\d{1,2}.\d{4})', '>(\d{1,2}:\d{1,2})<', '(\d{5}.+\.)']
+
+parser = enno_train_delay.extract_train_delay_information()
+p_theader = parser.parse_train_delay_table_header(table)
+print(p_theader)
