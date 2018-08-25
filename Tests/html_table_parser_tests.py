@@ -9,6 +9,8 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 from enno_train_delay import enno_train_delay
 
+import re
+
 
 class html_table_parser_tests(unittest.TestCase):
     '''
@@ -21,53 +23,19 @@ class html_table_parser_tests(unittest.TestCase):
 
     test_url = 'https://www.der-enno.de/#meldungen'
 
-    extracted_table = ''
-    extracted_table_body = ''
+    extracted_table_lines = ''
 
     def test_table_extraction(self):
         parser = enno_train_delay.extract_train_delay_information()
-        self.extracted_table = parser.parse_train_delay_table(self.test_url)
+        self.extracted_table_lines = parser.parse_train_delay_table(
+            self.test_url)
 
-        self.assertIsNotNone(self.extracted_table)
+        self.assertIsNotNone(self.extracted_table_lines)
 
-    def test_table_header_extraction(self):
-        parser = enno_train_delay.extract_train_delay_information()
-        extracted_table_header = parser.parse_train_delay_table_header(
-            self.extracted_table)
-
-        # Extracted table head should not be None
-        self.assertIsNotNone(extracted_table_header)
-
-        # Extracted table head should contain the following columns
-        self.assertListEqual(extracted_table_header, [
-                             'Datum', 'Uhrzeit', 'Meldung'])
-
-    def test_table_body_row_extraction(self):
-        parser = enno_train_delay.extract_train_delay_information()
-
-        # Extracting the table body
-        self.extracted_table_body = parser.parse_train_delay_table_body(
-            self.extracted_table)
-
-        self.assertIsNotNone(self.extracted_table_body)
-
-    def test_table_row_date_extraction(self):
-        parser = enno_train_delay.extract_train_delay_information()
-        rows = parser.parse_train_delay_table_dates(self.extracted_table_body)
-
-        self.assertIsNotNone(rows)
-
-    def test_table_row_time_extraction(self):
-        parser = enno_train_delay.extract_train_delay_information()
-        rows = parser.parse_train_delay_table_times(self.extracted_table_body)
-
-        self.assertIsNotNone(rows)
-
-    def test_table_row_msg_extraction(self):
-        parser = enno_train_delay.extract_train_delay_information()
-        rows = parser.parse_train_delay_table_msg(self.extracted_table_body)
-
-        self.assertIsNotNone(rows)
+    def test_header_is_in_first_line(self):
+        print(self.extracted_table_lines)
+        # self.assertIsInstance(header, str())
+        # self.assertListEqual(header, ['Datum', 'Uhrzeit', 'Meldung'])
 
 
 if __name__ == '__main__':

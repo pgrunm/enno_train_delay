@@ -31,7 +31,7 @@ class extract_train_delay_information:
         firefox_driver = os.path.join(os.getcwd(), "geckodriver")
 
         driver = webdriver.Firefox(
-            firefox_options=firefox_options, executable_path=firefox_driver)
+            options=firefox_options, executable_path=firefox_driver)
 
         # Download the URL's content
         driver.get(url)
