@@ -1,60 +1,64 @@
+import os
 import re
-
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
 
 
 class extract_train_delay_information:
+    ''' 
+    Class to extract train delay information from 
+    the German railway company enno from https://der-enno.de.
+    '''
 
     '''
-    Reg Expressions
-    1. Datum: Gibt eine Liste mit Daten zurück
-    2. Uhrzeit: Gibt eine Liste mit Uhrzeiten zurück
-    3. Message: Gibt eine Liste mit Strings zurück
+    REGEX:
+    1. Datum: ^\d{2}.\d{2}.\d{4}
+    2. Uhrzeit: ^\d{2}.\d{2}.\d{4}\s(\d{2}:\d{2})
+    3. Message: ^\d{2}.\d{2}.\d{4}\s\d{2}:\d{2}\s(.+)
     '''
     table_body_reg_expressions = [
-        '(\d{1,2}.\d{1,2}.\d{4})', '>(\d{1,2}:\d{1,2})<', '(\d{5}.+\.)']
+        r'^\d{2}.\d{2}.\d{4}', r'^\d{2}.\d{2}.\d{4}\s(\d{2}:\d{2})', '^\d{2}.\d{2}.\d{4}\s\d{2}:\d{2}\s(.+)']
 
     def parse_train_delay_table(self, url):
         # Access the given URL and download the page
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        # Find and extract the Table with the ID troubleTable
-        return soup.find(id='troubleTable')
+        firefox_options = Options()
+        firefox_options.add_argument("--headless")
 
-    def parse_train_delay_table_header(self, table):
-        soup = BeautifulSoup(table, 'html.parser')
-        # Find the table header and extract it
-        table_header = soup.find('thead')
+        # download Firefox Webdriver
+        # https://github.com/mozilla/geckodriver/releases
+        # put driver executable file in the script directory
+        firefox_driver = os.path.join(os.getcwd(), "geckodriver")
 
-        # Regular Expression: Capture everything with atleast 1 capital letter and unlimited lowercase letters
-        th_reg_exp = re.compile('([A-Z]{1}[a-z]{1,})')
-        return th_reg_exp.findall(str(table_header))
+        driver = webdriver.Firefox(
+            firefox_options=firefox_options, executable_path=firefox_driver)
 
-    def parse_train_delay_table_body(self, table):
-        soup = BeautifulSoup(table, 'html.parser')
+        # Download the URL's content
+        driver.get(url)
 
-        # Getting the table body and returning it
-        table_body = soup.find('tbody')
-        return table_body
+        table = driver.find_element_by_id(id_='troubleTable')
+        regex = re.compile(r'\n')
+        table_text = regex.split(table.text)
+        driver.close()
+        return table_text
 
-    def parse_train_delay_table_dates(self, table_body):
+    def parse_train_delay_table_date(self, line):
         tr_reg_exp_date = re.compile(self.table_body_reg_expressions[0])
 
-        # Extracting the Dates
-        dates = tr_reg_exp_date.findall(str(table_body))
-        return dates
+        # Extracting the Date
+        date = tr_reg_exp_date.findall(line)
+        return date[0]
 
-    def parse_train_delay_table_times(self, table_body):
+    def parse_train_delay_table_time(self, line):
         tr_reg_exp_time = re.compile(self.table_body_reg_expressions[1])
 
-        # Extracting the Times
-        times = tr_reg_exp_time.findall(str(table_body))
-        return times
+        # Extracting the Time
+        time = tr_reg_exp_time.findall(line)
+        return time[0]
 
-    def parse_train_delay_table_msg(self, table_body):
+    def parse_train_delay_table_msg(self, line):
         tr_reg_exp_msg = re.compile(self.table_body_reg_expressions[2])
 
-        # Extracting the Times
-        messages = tr_reg_exp_msg.findall(str(table_body))
-        return messages
+        # Extracting the message
+        message = tr_reg_exp_msg.findall(line)
+        return message[0]

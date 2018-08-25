@@ -1,23 +1,27 @@
+
 from enno_train_delay import enno_train_delay
 
-url = 'https://www.der-enno.de/#meldungen'
 
-parser = enno_train_delay.extract_train_delay_information()
+def main():
 
-# Retrieve the table
-table = parser.parse_train_delay_table(url)
+    url = 'https://der-enno.de/#meldungen'
+    parser = enno_train_delay.extract_train_delay_information()
+    table_content = parser.parse_train_delay_table(url)
 
-# Extract the table header
-table_header = parser.parse_train_delay_table_header(table)
+    for line in table_content:
+        # Contains header
+        if 'Datum' in line and 'Uhrzeit' in line and 'Meldung' in line:
+            # Nothing yet...
+            pass
 
-# Getting the Table Body
-table_body = parser.parse_train_delay_table_body(table)
+        # Line contains the beautiful data we want
+        else:
+            date = parser.parse_train_delay_table_date(line)
+            time = parser.parse_train_delay_table_time(line)
+            msg = parser.parse_train_delay_table_msg(line)
 
-# Extracting the other stuff
-dates = parser.parse_train_delay_table_dates(table_body)
-times = parser.parse_train_delay_table_times(table_body)
-messages = parser.parse_train_delay_table_msg(table_body)
+            print('{} um {}: {}'.format(date, time, msg))
 
-for entry in range(0, len(dates)):
-    print('Datum: {} | Uhrzeit: {} | MSG: {}'.format(
-        dates[entry], dates[entry], messages[entry]))
+
+if __name__ == '__main__':
+    main()
