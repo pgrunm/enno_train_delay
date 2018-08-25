@@ -13,12 +13,12 @@ class extract_train_delay_information:
 
     '''
     REGEX:
-    1. Datum: ^\d{2}.\d{2}.\d{4}
-    2. Uhrzeit: ^\d{2}.\d{2}.\d{4}\s(\d{2}:\d{2})
-    3. Message: ^\d{2}.\d{2}.\d{4}\s\d{2}:\d{2}\s(.+)
+    1. Date
+    2. Time 
+    3. Message
     '''
     table_body_reg_expressions = [
-        r'^\d{2}.\d{2}.\d{4}', r'^\d{2}.\d{2}.\d{4}\s(\d{2}:\d{2})', '^\d{2}.\d{2}.\d{4}\s\d{2}:\d{2}\s(.+)']
+        r'^\d{2}.\d{2}.\d{4}', r'^\d{2}.\d{2}.\d{4}\s(\d{2}:\d{2})', r'^\d{2}.\d{2}.\d{4}\s\d{2}:\d{2}\s(.+)']
 
     def parse_train_delay_table(self, url):
         # Access the given URL and download the page
